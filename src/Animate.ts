@@ -21,6 +21,10 @@ export default class Animate {
 
   private mounted = false;
 
+  private isLeftKeyPressed = false;
+
+  private isRightKeyPressed = false;
+
   public constructor ({ width = WIDTH, height = HEIGHT }) {
     this.width = width;
     this.height = height;
@@ -40,17 +44,27 @@ export default class Animate {
     this.paint();
   }
 
+  public handlerKeyUp () {
+    this.isLeftKeyPressed = false;
+    this.isRightKeyPressed = false;
+  }
+
   public handlerKeyDown (key: String) {
-    if (key === Key.ArrowLeft) {
-      this.paddle.left();
-    }
-    if (key === Key.ArrowRight) {
-      this.paddle.right();
-    }
+    this.isLeftKeyPressed = key === Key.ArrowLeft;
+    this.isRightKeyPressed = key === Key.ArrowRight;
   }
 
   public isMounted () {
     return this.mounted;
+  }
+
+  public measurePaddle () {
+    if (this.isLeftKeyPressed) {
+      this.paddle.left();
+    }
+    if (this.isRightKeyPressed) {
+      this.paddle.right();
+    }
   }
 
   private paint () {
@@ -58,6 +72,7 @@ export default class Animate {
     this.ctx.clearRect(0, 0, width, height);
     this.ball.go();
     this.ball.draw();
+    this.measurePaddle();
     this.paddle.draw();
     requestAnimationFrame(paint.bind(this));
   }

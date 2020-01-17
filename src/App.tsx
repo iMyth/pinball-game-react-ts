@@ -12,13 +12,19 @@ const handlerKeyDown = function (e: KeyboardEvent) {
   animate.handlerKeyDown(e.key)
 }
 
+const handlerKeyUp = function () {
+  animate.handlerKeyUp()
+}
+
 const App: React.FC = () => {
 
   useEffect(() => {
     document.addEventListener('keydown', handlerKeyDown);
+    document.addEventListener('keyup', handlerKeyUp);
     animate.mount();
     return () => {
       document.removeEventListener('keydown', handlerKeyDown)
+      document.addEventListener('keyup', handlerKeyUp);
     };
   }, []);
 

@@ -46,14 +46,18 @@ export default class Paddle extends Collision {
     if (this.x <= 0) {
       return;
     }
-    this.x -= this.step;
+    requestAnimationFrame(() => {
+      this.x -= this.step;
+    })
   }
 
   public right () {
     if (this.x + this.width >= WIDTH) {
       return;
     }
-    this.x += this.step;
+    requestAnimationFrame(() => {
+      this.x += this.step;
+    })
   }
 
   get rect () {
