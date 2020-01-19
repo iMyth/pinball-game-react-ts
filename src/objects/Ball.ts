@@ -1,6 +1,6 @@
-import { WIDTH, HEIGHT } from '../constants';
-import { Collision } from './Collision';
+import Collision from './Collision';
 import { CanvasEvent } from '../eventBus';
+import { CollisionRect } from './Collision';
 
 export interface BallOptions {
   x: number;
@@ -37,7 +37,7 @@ export default class Ball extends Collision {
     this.y = y;
     this.radius = radius;
     this.ctx = ctx;
-    this.addEventListener('mousemove', this.onClick.bind(this))
+    this.addEventListener('mousemove', this.onMouseOver.bind(this));
   }
 
   public reset() {
@@ -47,12 +47,19 @@ export default class Ball extends Collision {
     this.gameOver = false;
   }
 
-  public onClick(evt: CanvasEvent) {
+  public onMouseOver(evt: CanvasEvent) {
+    this.gameOver = false;
     this.dy = - Math.abs(this.dy);
   }
 
   public addCollision(o: Collision) {
     this.collisions.push(o);
+  }
+
+  public addCollisionRect(rect: CollisionRect) {
+    this.collisions.push({
+      rect
+    } as Collision);
   }
 
   public draw() {
@@ -63,34 +70,29 @@ export default class Ball extends Collision {
     ctx.closePath();
   }
 
+  public checkAll() {
+    this.collisions.forEach(p => {
+      const hits = this.hit(p);
+      if (hits.length) {
+        hits.forEach(p => {
+          if (['left', 'right'].includes(p)) {
+            this.dx = -this.dx;
+          }
+          if (['top', 'bottom'].includes(p)) {
+            this.dy = -this.dy;
+          }
+        });
+      }
+    });
+    this.x += this.dx;
+    this.y += this.dy;
+  }
+
   public go() {
     if (this.gameOver) {
       return;
     }
-    let { x, y, radius } = this;
-    const hitPaddle = this.collisions.some(p => {
-      return p.hit(this);
-    });
-    if (hitPaddle) {
-      this.dy = -this.dy;
-    }
-    if (x + radius >= WIDTH) {
-      this.dx = -this.dx;
-    }
-    if (y + radius >= HEIGHT) {
-      this.gameOver = true;
-      if (window.confirm('Game over! Would you like another try?')) {
-        this.reset();
-      }
-    }
-    if (x <= 0) {
-      this.dx = -this.dx;
-    }
-    if (y < 0) {
-      this.dy = -this.dy;
-    }
-    this.x += this.dx;
-    this.y += this.dy;
+    this.checkAll();
   }
 
   get rect() {

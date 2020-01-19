@@ -2,7 +2,8 @@
   text-align: center;
 }
 
-#canvas1 {
+.canvas-wrapper {
+  display: inline-block;
   border: dotted 2px #ddd;
   border-bottom: none;
 }

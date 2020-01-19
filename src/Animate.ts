@@ -2,13 +2,24 @@ import Ball, { BallOptions } from './objects/Ball';
 import Paddle, { PaddleOptions } from './objects/Paddle';
 import { WIDTH, HEIGHT, BallStartPoint, PaddleStartPoint, PaddleStyle } from './constants';
 import EventBus, { CanvasEvent } from './eventBus';
+import { CollisionRect } from './objects/Collision';
 
 export interface SupportedEventMap {
   'click': MouseEvent;
   'mousemove': MouseEvent;
 }
 
+const boards = [{
+  x: 0, y: 0, width: 1, height: HEIGHT
+}, {
+  x: 0, y: 0, width: WIDTH, height: 1
+}, {
+  x: WIDTH, y: 0, width: 1, height: HEIGHT
+}] as CollisionRect[];
+
 const evts = ['click', 'mousemove'] as Array<keyof SupportedEventMap>;
+
+const ballsCount = 20;
 
 export enum Key {
   ArrowLeft = 'ArrowLeft',
@@ -18,6 +29,8 @@ export enum Key {
 export default class Animate {
 
   private ball!: Ball;
+
+  private balls = [] as Ball[];
 
   private paddle!: Paddle;
 
@@ -48,9 +61,44 @@ export default class Animate {
     this.mounted = true;
     this.ctx = ctx;
     this.paddle = new Paddle({ ctx, width: PaddleStyle.width, height: PaddleStyle.height, x: PaddleStartPoint.x, y: PaddleStartPoint.y } as PaddleOptions);
-    this.ball = new Ball({ ctx, radius: 5, x: BallStartPoint.x, y: BallStartPoint.y } as BallOptions);
-    this.ball.addCollision(this.paddle);
+    this.initBalls(ctx);
+    this.balls.forEach(p => {
+      p.addCollision(this.paddle);
+      boards.forEach(q => {
+        p.addCollisionRect(q);
+      })
+      this.balls.forEach(q => {
+        if (p === q) {
+          return;
+        }
+        p.addCollision(q);
+      })
+    });
     this.paint();
+  }
+
+  public initBalls(ctx: CanvasRenderingContext2D) {
+    const balls = [] as Ball[];
+    for (let i = 0; i < ballsCount; i++) {
+      balls.push(new Ball({
+        ctx,
+        radius: 5,
+        x: BallStartPoint.x + ((Math.floor(Math.random() * 2) + 1) * i * 10),
+        y: BallStartPoint.y + ((Math.floor(Math.random() * 2) + 1) * i * 10)
+      } as BallOptions))
+    }
+    this.addManyBalls(balls)
+  }
+
+  public addManyBalls(ball: Ball[]) {
+    this.balls.push(...ball);
+  }
+
+  public ballsRun() {
+    this.balls.forEach(p => {
+      p.go();
+      p.draw();
+    })
   }
 
   public delegateMouseEvents(canvas: HTMLCanvasElement) {
@@ -93,8 +141,7 @@ export default class Animate {
   private paint() {
     const { width, height, paint } = this;
     this.ctx.clearRect(0, 0, width, height);
-    this.ball.go();
-    this.ball.draw();
+    this.ballsRun();
     this.measurePaddle();
     this.paddle.draw();
     requestAnimationFrame(paint.bind(this));

@@ -1,4 +1,4 @@
-import EventBus, { CanvasEvent } from '../eventBus';
+import ClickAble from './ClickAble';
 
 export interface CollisionRect {
   x: number;
@@ -7,45 +7,43 @@ export interface CollisionRect {
   height: number;
 }
 
-export interface Point {
-  x: number;
-  y: number;
-}
-
 export interface Dictionary<T> {
   [key: string]: T
 }
 
-export abstract class Collision {
-
-  abstract get rect(): CollisionRect;
+export default abstract class Collision extends ClickAble {
 
   public hit(o: Collision) {
     const { rect: { x, y, width, height } } = this;
     const { rect } = o;
-    return x + width > rect.x && x < rect.x + rect.width && y + height > rect.y && y < rect.y + rect.height;
-  }
+    const collided = x + width > rect.x && x < rect.x + rect.width && y + height > rect.y && y < rect.y + rect.height;
 
-  public addEventListener(type: string, handle: (evt: CanvasEvent) => void) {
-    EventBus.addEventListener(type, (evt: CanvasEvent) => {
-      if (!this.shouldDispatch(evt)) {
-        return;
-      }
-      handle(evt);
-    });
-  }
+    if (!collided) {
+      return [];
+    }
 
-  public pointInRect(point: Point) {
-    const { rect: { x, y, width, height } } = this;
-    return point.x >= x && point.x <= x + width && point.y >= y && point.y <= y + height;
-  }
+    const leftCollision = rect.x + rect.width - x;
+    const rightCollision = x + width - rect.x;
+    const topCollision = rect.y + rect.height - y;
+    const bottomCollision = y + height - rect.y;
 
-  public shouldDispatch(e: CanvasEvent) {
-    const { cx, cy } = e;
-    return this.pointInRect({
-      x: cx,
-      y: cy
-    });
+    const possiblyHit = Math.min(leftCollision, rightCollision, topCollision, bottomCollision);
+
+    const sides = [{
+      key: 'left',
+      value: leftCollision
+    }, {
+      key: 'right',
+      value: rightCollision
+    }, {
+      key: 'top',
+      value: topCollision
+    }, {
+      key: 'bottom',
+      value: bottomCollision
+    }].filter(p => p.value === possiblyHit).map(p => p.key);
+
+    return sides;
   }
 
 }

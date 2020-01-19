@@ -1,4 +1,4 @@
-import { Collision } from './Collision';
+import Collision from './Collision';
 
 import { WIDTH } from '../constants';
 

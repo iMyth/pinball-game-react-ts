@@ -32,11 +32,13 @@ const App: React.FC = () => {
     <div
       className="App"
     >
-      <canvas
-        id="canvas1"
-        width={WIDTH}
-        height={HEIGHT}
-      ></canvas>
+      <div className="canvas-wrapper">
+        <canvas
+          id="canvas1"
+          width={WIDTH}
+          height={HEIGHT}
+        ></canvas>
+      </div>
     </div>
   );
 }
