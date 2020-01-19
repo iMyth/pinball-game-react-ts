@@ -24,7 +24,7 @@ export default class Paddle extends Collision {
 
   private step = 7;
 
-  public constructor (opts: PaddleOptions) {
+  public constructor(opts: PaddleOptions) {
     super();
     const { x, y, width, height, ctx } = opts;
     this.width = width;
@@ -34,7 +34,7 @@ export default class Paddle extends Collision {
     this.ctx = ctx;
   }
 
-  public draw () {
+  public draw() {
     const { x, y, width, height, ctx } = this;
     ctx.lineWidth = height;
     ctx.moveTo(x, y);
@@ -42,7 +42,7 @@ export default class Paddle extends Collision {
     ctx.stroke();
   }
 
-  public left () {
+  public left() {
     if (this.x <= 0) {
       return;
     }
@@ -51,7 +51,7 @@ export default class Paddle extends Collision {
     })
   }
 
-  public right () {
+  public right() {
     if (this.x + this.width >= WIDTH) {
       return;
     }
@@ -60,7 +60,7 @@ export default class Paddle extends Collision {
     })
   }
 
-  get rect () {
+  get rect() {
     const { x, y, width, height } = this;
     return {
       x, y, width, height

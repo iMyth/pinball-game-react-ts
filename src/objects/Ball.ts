@@ -1,5 +1,6 @@
 import { WIDTH, HEIGHT } from '../constants';
 import { Collision } from './Collision';
+import { CanvasEvent } from '../eventBus';
 
 export interface BallOptions {
   x: number;
@@ -24,22 +25,37 @@ export default class Ball extends Collision {
 
   private gameOver = false;
 
+  private opts!: BallOptions;
+
   private collisions = [] as Collision[];
 
-  public constructor (opts: BallOptions) {
+  public constructor(opts: BallOptions) {
     super();
     const { x, y, radius, ctx } = opts;
+    this.opts = opts;
     this.x = x;
     this.y = y;
     this.radius = radius;
     this.ctx = ctx;
+    this.addEventListener('mousemove', this.onClick.bind(this))
+  }
+
+  public reset() {
+    const { x, y } = this.opts;
+    this.x = x;
+    this.y = y;
+    this.gameOver = false;
+  }
+
+  public onClick(evt: CanvasEvent) {
+    this.dy = - Math.abs(this.dy);
   }
 
   public addCollision(o: Collision) {
     this.collisions.push(o);
   }
 
-  public draw () {
+  public draw() {
     const { x, y, radius, ctx } = this;
     ctx.beginPath();
     ctx.arc(x, y, radius, 0, Math.PI * 2);
@@ -47,7 +63,7 @@ export default class Ball extends Collision {
     ctx.closePath();
   }
 
-  public go () {
+  public go() {
     if (this.gameOver) {
       return;
     }
@@ -63,7 +79,9 @@ export default class Ball extends Collision {
     }
     if (y + radius >= HEIGHT) {
       this.gameOver = true;
-      alert('game over!');
+      if (window.confirm('Game over! Would you like another try?')) {
+        this.reset();
+      }
     }
     if (x <= 0) {
       this.dx = -this.dx;
@@ -75,10 +93,10 @@ export default class Ball extends Collision {
     this.y += this.dy;
   }
 
-  get rect () {
+  get rect() {
     const { x, y, radius } = this;
     return {
-      x, y, height: radius * 2, width: radius * 2
+      x: x - radius, y: y - radius, height: radius * 2, width: radius * 2
     }
   }
 
