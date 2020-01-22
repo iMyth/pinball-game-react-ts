@@ -16,7 +16,7 @@ export default abstract class Collision extends ClickAble {
   public hit(o: Collision) {
     const { rect: { x, y, width, height } } = this;
     const { rect } = o;
-    const collided = x + width > rect.x && x < rect.x + rect.width && y + height > rect.y && y < rect.y + rect.height;
+    const collided = x + width >= rect.x && x <= rect.x + rect.width && y + height >= rect.y && y <= rect.y + rect.height;
 
     if (!collided) {
       return [];

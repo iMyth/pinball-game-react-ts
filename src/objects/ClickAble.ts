@@ -19,6 +19,10 @@ export default abstract class ClickAble {
     });
   }
 
+  public removeEventListener(type: string, handle: (evt: CanvasEvent) => void) {
+    EventBus.removeEventListener(type, handle);
+  }
+
   public pointInRect(point: Point) {
     const { rect: { x, y, width, height } } = this;
     return point.x >= x && point.x <= x + width && point.y >= y && point.y <= y + height;

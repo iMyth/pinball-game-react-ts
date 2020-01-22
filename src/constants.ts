@@ -1,17 +1,17 @@
 export const WIDTH = 500;
 
 export const BallStartPoint = {
-  x: 250,
-  y: 150
+  x: 50,
+  y: 10
 }
 
 export const PaddleStartPoint = {
-  x: 100,
+  x: 0,
   y: 296
 }
 
 export const PaddleStyle = {
-  width: 50,
+  width: 500,
   height: 6
 }
 

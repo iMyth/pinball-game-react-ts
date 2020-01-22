@@ -34,6 +34,10 @@ export default class Paddle extends Collision {
     this.ctx = ctx;
   }
 
+  public setWidth(width: number) {
+    this.width = width;
+  }
+
   public draw() {
     const { x, y, width, height, ctx } = this;
     ctx.lineWidth = height;
@@ -48,7 +52,7 @@ export default class Paddle extends Collision {
     }
     requestAnimationFrame(() => {
       this.x -= this.step;
-    })
+    });
   }
 
   public right() {
@@ -57,7 +61,7 @@ export default class Paddle extends Collision {
     }
     requestAnimationFrame(() => {
       this.x += this.step;
-    })
+    });
   }
 
   get rect() {

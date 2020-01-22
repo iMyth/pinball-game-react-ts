@@ -19,13 +19,15 @@ export default class Ball extends Collision {
 
   private ctx: CanvasRenderingContext2D;
 
-  private dx = 2;
+  private dx = (Math.random() * 3 + 1) | 0;
 
-  private dy = 2;
+  private dy = (Math.random() * 3 + 1) | 0;
 
   private gameOver = false;
 
   private opts!: BallOptions;
+
+  private fillStyle!: string;
 
   private collisions = [] as Collision[];
 
@@ -37,6 +39,7 @@ export default class Ball extends Collision {
     this.y = y;
     this.radius = radius;
     this.ctx = ctx;
+    this.fillStyle = `rgb(${Math.random() * 255 | 0}, ${Math.random() * 255 | 0}, ${Math.random() * 255 | 0})`;
     this.addEventListener('mousemove', this.onMouseOver.bind(this));
   }
 
@@ -65,12 +68,14 @@ export default class Ball extends Collision {
   public draw() {
     const { x, y, radius, ctx } = this;
     ctx.beginPath();
+    ctx.fillStyle = this.fillStyle;
     ctx.arc(x, y, radius, 0, Math.PI * 2);
     ctx.fill();
     ctx.closePath();
   }
 
   public checkAll() {
+    // buggie, Rebound speed is not true as it should obey 'Conservation of Momentum'
     this.collisions.forEach(p => {
       const hits = this.hit(p);
       if (hits.length) {

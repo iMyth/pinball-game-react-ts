@@ -1,5 +1,6 @@
 import Ball, { BallOptions } from './objects/Ball';
 import Paddle, { PaddleOptions } from './objects/Paddle';
+import Fps from './objects/Fps';
 import { WIDTH, HEIGHT, BallStartPoint, PaddleStartPoint, PaddleStyle } from './constants';
 import EventBus, { CanvasEvent } from './eventBus';
 import { CollisionRect } from './objects/Collision';
@@ -19,12 +20,14 @@ const boards = [{
 
 const evts = ['click', 'mousemove'] as Array<keyof SupportedEventMap>;
 
-const ballsCount = 20;
+const ballsCount = 10;
 
 export enum Key {
   ArrowLeft = 'ArrowLeft',
   ArrowRight = 'ArrowRight'
 }
+
+let lastPaint = Date.now();
 
 export default class Animate {
 
@@ -33,6 +36,8 @@ export default class Animate {
   private balls = [] as Ball[];
 
   private paddle!: Paddle;
+
+  private fps!: Fps;
 
   private ctx!: CanvasRenderingContext2D;
 
@@ -60,6 +65,7 @@ export default class Animate {
     this.delegateMouseEvents(canvas);
     this.mounted = true;
     this.ctx = ctx;
+    this.fps = new Fps(ctx);
     this.paddle = new Paddle({ ctx, width: PaddleStyle.width, height: PaddleStyle.height, x: PaddleStartPoint.x, y: PaddleStartPoint.y } as PaddleOptions);
     this.initBalls(ctx);
     this.balls.forEach(p => {
@@ -74,7 +80,14 @@ export default class Animate {
         p.addCollision(q);
       })
     });
+    this.initEvents();
     this.paint();
+}
+
+  public initEvents() {
+    EventBus.$on('change-width', (width: number) => {
+      this.paddle.setWidth(width);
+    })
   }
 
   public initBalls(ctx: CanvasRenderingContext2D) {
@@ -83,11 +96,11 @@ export default class Animate {
       balls.push(new Ball({
         ctx,
         radius: 5,
-        x: BallStartPoint.x + ((Math.floor(Math.random() * 2) + 1) * i * 10),
-        y: BallStartPoint.y + ((Math.floor(Math.random() * 2) + 1) * i * 10)
-      } as BallOptions))
+        x: BallStartPoint.x + (((Math.random() * 2 | 0) + 1) * i * 15),
+        y: BallStartPoint.y + (((Math.random() * 2 | 0) + 1) * i * 10)
+      } as BallOptions));
     }
-    this.addManyBalls(balls)
+    this.addManyBalls(balls);
   }
 
   public addManyBalls(ball: Ball[]) {
@@ -138,12 +151,21 @@ export default class Animate {
     }
   }
 
+  private measureFps(currentPaintTime: number) {
+    const timespan = currentPaintTime - lastPaint;
+    this.fps.setFps((1e3 / timespan) | 0)
+    lastPaint = currentPaintTime;
+  }
+
   private paint() {
+    const currentPaintTime = Date.now();
     const { width, height, paint } = this;
     this.ctx.clearRect(0, 0, width, height);
     this.ballsRun();
     this.measurePaddle();
     this.paddle.draw();
+    this.fps.draw();
+    this.measureFps(currentPaintTime);
     requestAnimationFrame(paint.bind(this));
   }
 
